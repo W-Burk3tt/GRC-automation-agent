@@ -6,3 +6,4 @@ __pycache__/
 data/raw/
 data/*.json
 data/raw/
+data/*.db
