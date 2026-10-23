@@ -52,16 +52,24 @@ def cmd_crosswalk(conn, args):
     cmmc_control = {"control_id": row[0], "title": row[1], "text": row[2]}
 
     # Check if we already have mappings cached
+
+    refresh = "--refresh" in args
+    if refresh:
+        args = [a for a in args if a != "--refresh"]
+
     existing = conn.execute(
         "SELECT pcidss_control_id, confidence, mapping_rationale FROM crosswalk WHERE cmmc_control_id = ?",
         (control_id,)
     ).fetchall()
-    if existing:
+    if existing and not refresh:
         print(f"\nExisting crosswalk mappings for {control_id} (from database):")
         for pid, conf, rationale in existing:
             print(f"  -> PCI-DSS {pid} ({conf}): {rationale[:100]}")
         print("\n(Run with --refresh to re-query the LLM instead of using cached results.)")
         return
+
+    elif refresh:
+        print(f"Refreshing crosswalk for {control_id} (clearing cached results)...")
 
     pcidss_controls = load_controls(conn, "PCI-DSS")
     candidates = find_candidates([cmmc_control], pcidss_controls)
@@ -76,6 +84,10 @@ def cmd_crosswalk(conn, args):
     if not mappings:
         print(f"No PCI-DSS mapping found for {control_id}.")
         return
+
+    if refresh:
+        conn.execute("DELETE FROM crosswalk WHERE cmmc_control_id = ?", (control_id,))
+        conn.commit()
 
     for mapping in mappings:
         save_crosswalk(conn, control_id, mapping)
