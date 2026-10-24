@@ -67,7 +67,6 @@ def cmd_crosswalk(conn, args):
             print(f"  -> PCI-DSS {pid} ({conf}): {rationale[:100]}")
         print("\n(Run with --refresh to re-query the LLM instead of using cached results.)")
         return
-
     elif refresh:
         print(f"Refreshing crosswalk for {control_id} (clearing cached results)...")
 
