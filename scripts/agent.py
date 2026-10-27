@@ -68,7 +68,7 @@ def cmd_crosswalk(conn, args):
         print("\n(Run with --refresh to re-query the LLM instead of using cached results.)")
         return
     elif refresh:
-        print(f"Refreshing crosswalk for {control_id} (clearing cached results)...")
+        print(f"Refreshing crosswalk for {control_id} (will replace cached results on success)...")
 
     pcidss_controls = load_controls(conn, "PCI-DSS")
     candidates = find_candidates([cmmc_control], pcidss_controls)
